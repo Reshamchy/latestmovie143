@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies List</title>
+    <!-- Google Ads script (loaded with error handling in JavaScript) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --card-gradient: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            --background-color: #0f172a;
+            --card-background: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-color: #38bdf8;
+            --shadow-color: rgba(0, 0, 0, 0.25);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--primary-gradient);
+            padding: 2.5rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: white;
+            margin: 0;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2);
+        }
+
+        #videoList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .video-item {
+            background: var(--card-background);
+            border-radius: 1.25rem;
+            overflow: hidden;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .video-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 30px var(--shadow-color);
+        }
+
+        .video-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 1.25rem;
+            color: var(--text-primary);
+            background: var(--card-gradient);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .error {
+            color: #f87171;
+            background-color: rgba(248, 113, 113, 0.1);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            grid-column: 1 / -1;
+            font-size: 1.125rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .ad-block-message {
+            display: none;
+            text-align: center;
+            color: #f87171;
+            padding: 1rem;
+            margin: 1rem auto;
+            background-color: rgba(248, 113, 113, 0.1);
+            border-radius: 0.5rem;
+            max-width: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            #videoList { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem 0; }
+            h1 { font-size: 2rem; }
+            .video-item { border-radius: 1rem; }
+            .video-item:hover { transform: none; box-shadow: 0 8px 20px var(--shadow-color); }
+            .search-input { padding: 0.875rem 1.25rem; font-size: 1rem; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        .ad-container {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        noscript {
+            display: block;
+            text-align: center;
+            padding: 2rem;
+            color: #f87171;
+            background-color: rgba(248, 113, 113, 0.1);
+            margin: 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <noscript>
+        JavaScript is required to view this site. Please enable JavaScript in your browser.
+    </noscript>
+    <div class="header">
+        <div class="container">
+            <h1 class="animate__animated animate__fadeInDown">Movie List</h1>
+            <div class="search-container animate__animated animate__fadeInUp">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search movies..."
+                    aria-label="Search movies"
+                >
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="adBlockMessage" class="ad-block-message">
+            Please disable your ad blocker to support this site and view all content.
+        </div>
+        <div id="videoList">
+            <div class="loading">Loading your video collection...</div>
+        </div>
+        
+        <!-- Adsterra Native Banner -->
+        <div class="ad-container" id="adsterraBanner">
+            <div id="container-970f3b77f8751500e9b5e63de9ccb315"></div>
+        </div>
+        
+        <!-- Iframe Banner -->
+        <div class="ad-container" id="iframeBanner"></div>
+    </div>
+
+    <script type="module">
+        // Load external scripts with error handling
+        function loadScript(src, async = true, onErrorMessage = "Failed to load script") {
+            const script = document.createElement("script");
+            script.src = src;
+            script.async = async;
+            script.onerror = () => console.warn(`${onErrorMessage}: ${src}`);
+            document.body.appendChild(script);
+            return script;
+        }
+
+        // Load ad scripts
+        loadScript("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5622393858349174", true, "Failed to load Google Ads script");
+        loadScript("//pl26476059.profitableratecpm.com/970f3b77f8751500e9b5e63de9ccb315/invoke.js", true, "Failed to load Adsterra banner script");
+        loadScript("//pl26476084.profitableratecpm.com/cc/e4/5e/cce45e29eab71e792f2e878196801f45.js", true, "Failed to load Adsterra social bar script");
+
+        // Load iframe banner script
+        const iframeScript = document.createElement("script");
+        iframeScript.textContent = `
+            atOptions = {
+                'key': 'b2c8c510e743d8ddd6c47a903ced933f',
+                'format': 'iframe',
+                'height': 60,
+                'width': 468,
+                'params': {}
+            };
+        `;
+        document.getElementById("iframeBanner").appendChild(iframeScript);
+        loadScript("//www.highperformanceformat.com/b2c8c510e743d8ddd6c47a903ced933f/invoke.js", true, "Failed to load iframe banner script");
+
+        // Detect ad blocker
+        const adTest = document.createElement("div");
+        adTest.className = "ad-container";
+        document.body.appendChild(adTest);
+        setTimeout(() => {
+            if (adTest.offsetHeight === 0) {
+                document.getElementById("adBlockMessage").style.display = "block";
+            }
+            document.body.removeChild(adTest);
+        }, 1000);
+
+        // Firebase initialization
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD14wwgcUIyiPl_qXvx7CtQTO2DEy465II",
+            authDomain: "my-video-earn-app12.firebaseapp.com",
+            databaseURL: "https://my-video-earn-app12-default-rtdb.firebaseio.com",
+            projectId: "my-video-earn-app12",
+            storageBucket: "my-video-earn-app12.appspot.com",
+            messagingSenderId: "967539655660",
+            appId: "1:967539655660:web:74fd5edab2a385d42936c9",
+            measurementId: "G-H0JEE2SLHD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const staffVideosRef = ref(database, "staffMovieVideos");
+        const movieVideosRef = ref(database, "Movie videos");
+
+        let allVideos = [];
+        const adLink = "https://www.profitableratecpm.com/by467ds6?key=cdeebee24ff0b75c3fad8e01565c268b";
+        const popupAdScript = "//pl26476047.profitableratecpm.com/33/dd/9d/33dd9d7e6bb869203f2515859fdf523f.js";
+
+        function loadPopupAdScript() {
+            if (!document.querySelector(`script[src="${popupAdScript}"]`)) {
+                loadScript(popupAdScript, true, "Failed to load popup ad script");
+            }
+        }
+
+        function createVideoElement(title, youtubeId) {
+            const videoItem = document.createElement("div");
+            videoItem.classList.add("video-item");
+
+            const titleElement = document.createElement("div");
+            titleElement.classList.add("video-title");
+            titleElement.textContent = title;
+            videoItem.appendChild(titleElement);
+
+            const videoWrapper = document.createElement("div");
+            videoWrapper.classList.add("video-wrapper");
+
+            const iframe = document.createElement("iframe");
+            iframe.src = `https://www.youtube.com/embed/${youtubeId}`;
+            iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+            iframe.allowFullscreen = true;
+            iframe.loading = "lazy";
+
+            const overlay = document.createElement("div");
+            overlay.style.position = "absolute";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100%";
+            overlay.style.height = "100%";
+            overlay.style.background = "rgba(0, 0, 0, 0)";
+            overlay.style.zIndex = "10";
+
+            let adCount = 0;
+            let popupLoaded = false;
+            overlay.addEventListener("click", function handleAdSequence(e) {
+                e.preventDefault();
+                if (adCount < 2) {
+                    const newWindow = window.open(adLink, "_blank");
+                    if (!newWindow) {
+                        console.warn("Ad blocked by browser. Please allow popups.");
+                        return;
+                    }
+                    adCount++;
+                    if (adCount === 1) {
+                        setTimeout(() => {
+                            const secondWindow = window.open(adLink, "_blank");
+                            if (!secondWindow) {
+                                console.warn("Second ad blocked by browser.");
+                            }
+                            adCount++;
+                            overlay.style.display = "none"; // Allow video interaction
+                        }, 1000);
+                    }
+                }
+                if (!popupLoaded) {
+                    loadPopupAdScript();
+                    popupLoaded = true;
+                }
+            });
+
+            videoWrapper.appendChild(iframe);
+            videoWrapper.appendChild(overlay);
+            videoItem.appendChild(videoWrapper);
+            return videoItem;
+        }
+
+        function extractYouTubeId(url) {
+            try {
+                const urlObj = new URL(url);
+                if (urlObj.hostname.includes("youtu.be")) {
+                    return urlObj.pathname.slice(1);
+                }
+                if (urlObj.hostname.includes("youtube.com")) {
+                    return urlObj.searchParams.get("v");
+                }
+            } catch (e) {
+                console.error("Invalid URL:", url);
+            }
+            return null;
+        }
+
+        function filterVideos(searchTerm) {
+            const videoContainer = document.getElementById("videoList");
+            videoContainer.innerHTML = "";
+
+            let filteredVideos = searchTerm
+                ? allVideos.filter((video) =>
+                      video.title.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                : allVideos.slice();
+
+            if (filteredVideos.length === 0) {
+                videoContainer.innerHTML =
+                    '<div class="no-results">No videos found matching your search.</div>';
+                return;
+            }
+
+            filteredVideos.sort((a, b) => {
+                const timeA = Number(a.timestamp) || 0;
+                const timeB = Number(b.timestamp) || 0;
+                if (timeA === timeB) {
+                    return a.title.localeCompare(b.title);
+                }
+                return timeB - timeA; // Newer videos first
+            });
+
+            filteredVideos.forEach((video, index) => {
+                const youtubeId = extractYouTubeId(video.url);
+                if (youtubeId) {
+                    const videoElement = createVideoElement(video.title, youtubeId);
+                    videoElement.style.animationDelay = `${index * 0.1}s`;
+                    videoContainer.appendChild(videoElement);
+                }
+            });
+        }
+
+        async function loadVideos() {
+            const videoContainer = document.getElementById("videoList");
+            try {
+                const [staffSnapshot, movieSnapshot] = await Promise.all([
+                    get(staffVideosRef),
+                    get(movieVideosRef)
+                ]);
+
+                videoContainer.innerHTML = "";
+                allVideos = [];
+
+                if (staffSnapshot.exists()) {
+                    const staffVideos = staffSnapshot.val();
+                    Object.values(staffVideos).forEach(video => {
+                        if (!video.timestamp) {
+                            console.warn(`Missing timestamp for staff video: ${video.title}`);
+                            video.timestamp = 0;
+                        }
+                        allVideos.push(video);
+                    });
+                }
+
+                if (movieSnapshot.exists()) {
+                    const movieVideos = movieSnapshot.val();
+                    Object.values(movieVideos).forEach(video => {
+                        if (!video.timestamp) {
+                            console.warn(`Missing timestamp for movie video: ${video.title}`);
+                            video.timestamp = 0;
+                        }
+                        allVideos.push(video);
+                    });
+                }
+
+                if (allVideos.length > 0) {
+                    filterVideos("");
+                } else {
+                    videoContainer.innerHTML = '<div class="error">No videos available.</div>';
+                }
+            } catch (error) {
+                console.error("Error loading videos:", error);
+                videoContainer.innerHTML =
+                    '<div class="error">Failed to load videos. Please try again later.</div>';
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        const searchInput = document.getElementById("searchInput");
+        const debouncedSearch = debounce((searchTerm) => filterVideos(searchTerm), 300);
+
+        searchInput.addEventListener("input", (e) => {
+            debouncedSearch(e.target.value);
+        });
+
+        window.addEventListener("load", loadVideos);
+    </script>
+</body>
+</html>

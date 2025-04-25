@@ -332,7 +332,6 @@
         const movieVideosRef = ref(database, "Movie videos");
 
         let allVideos = [];
-        const adLink = "https://www.profitableratecpm.com/by467ds6?key=cdeebee24ff0b75c3fad8e01565c268b";
         const popupAdScript = "//pl26476047.profitableratecpm.com/33/dd/9d/33dd9d7e6bb869203f2515859fdf523f.js";
 
         function loadPopupAdScript() {
@@ -368,32 +367,14 @@
             overlay.style.background = "rgba(0, 0, 0, 0)";
             overlay.style.zIndex = "10";
 
-            let adCount = 0;
             let popupLoaded = false;
-            overlay.addEventListener("click", function handleAdSequence(e) {
+            overlay.addEventListener("click", function handleOverlayClick(e) {
                 e.preventDefault();
-                if (adCount < 2) {
-                    const newWindow = window.open(adLink, "_blank");
-                    if (!newWindow) {
-                        console.warn("Ad blocked by browser. Please allow popups.");
-                        return;
-                    }
-                    adCount++;
-                    if (adCount === 1) {
-                        setTimeout(() => {
-                            const secondWindow = window.open(adLink, "_blank");
-                            if (!secondWindow) {
-                                console.warn("Second ad blocked by browser.");
-                            }
-                            adCount++;
-                            overlay.style.display = "none"; // Allow video interaction
-                        }, 1000);
-                    }
-                }
                 if (!popupLoaded) {
                     loadPopupAdScript();
                     popupLoaded = true;
                 }
+                overlay.style.display = "none"; // Allow video interaction
             });
 
             videoWrapper.appendChild(iframe);

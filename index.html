@@ -17,13 +17,13 @@
             'params': {}
         };
     </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/b2c8c510e743d8ddd6c47a903ced933f/invoke.js"></script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/8027fe3680bfd48fd441308fbce0823d/invoke.js"></script>
     <!-- Adsterra Popup Ad Script -->
-    <script type='text/javascript' src='//pl26476047.profitableratecpm.com/33/dd/9d/33dd9d7e6bb869203f2515859fdf523f.js'></script>
+    <script type='text/javascript' src='//pl26476546.profitableratecpm.com/fc/6b/5c/fc6b5c9ba63d8413d63f1631f98d84bb.js'></script>
     <!-- Adsterra Social Bar Ad Script -->
-    <script type='text/javascript' src='//pl26476084.profitableratecpm.com/cc/e4/5e/cce45e29eab71e792f2e878196801f45.js'></script>
+    <script type='text/javascript' src='//pl26476573.profitableratecpm.com/64/ff/25/64ff2512522b8f747006a49d7e36893d.js'></script>
     <!-- Adsterra Native Banner Script -->
-    <script async="async" data-cfasync="false" src="//pl26476059.profitableratecpm.com/970f3b77f8751500e9b5e63de9ccb315/invoke.js"></script>
+    <script async="async" data-cfasync="false" src="//pl26476562.profitableratecpm.com/ef311a3f8fb8f6385ceea2938ae2932e/invoke.js"></script>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -293,7 +293,7 @@
         
         <!-- Adsterra Native Banner -->
         <div class="ad-container" id="adsterraBanner">
-            <div id="container-970f3b77f8751500e9b5e63de9ccb315"></div>
+            <div id="container-ef311a3f8fb8f6385ceea2938ae2932e"></div>
         </div>
         
         <!-- Iframe Banner -->
@@ -332,7 +332,7 @@
         const movieVideosRef = ref(database, "Movie videos");
 
         let allVideos = [];
-        const popupAdScript = "//pl26476047.profitableratecpm.com/33/dd/9d/33dd9d7e6bb869203f2515859fdf523f.js";
+        const popupAdScript = "//pl26476546.profitableratecpm.com/fc/6b/5c/fc6b5c9ba63d8413d63f1631f98d84bb.js";
 
         function loadPopupAdScript() {
             if (!document.querySelector(`script[src="${popupAdScript}"]`)) {
@@ -367,14 +367,32 @@
             overlay.style.background = "rgba(0, 0, 0, 0)";
             overlay.style.zIndex = "10";
 
+            let adCount = 0;
             let popupLoaded = false;
-            overlay.addEventListener("click", function handleOverlayClick(e) {
+            overlay.addEventListener("click", function handleAdSequence(e) {
                 e.preventDefault();
+                if (adCount < 2) {
+                    const newWindow = window.open("", "_blank");
+                    if (!newWindow) {
+                        console.warn("Ad blocked by browser. Please allow popups.");
+                        return;
+                    }
+                    adCount++;
+                    if (adCount === 1) {
+                        setTimeout(() => {
+                            const secondWindow = window.open("", "_blank");
+                            if (!secondWindow) {
+                                console.warn("Second ad blocked by browser.");
+                            }
+                            adCount++;
+                            overlay.style.display = "none"; // Allow video interaction
+                        }, 1000);
+                    }
+                }
                 if (!popupLoaded) {
                     loadPopupAdScript();
                     popupLoaded = true;
                 }
-                overlay.style.display = "none"; // Allow video interaction
             });
 
             videoWrapper.appendChild(iframe);

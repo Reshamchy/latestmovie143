@@ -4,8 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movies List</title>
-    <!-- Google Ads script (loaded with error handling in JavaScript) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Google AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5622393858349174" crossorigin="anonymous"></script>
+    <!-- Adsterra Banner Script -->
+    <script type="text/javascript">
+        atOptions = {
+            'key': 'b2c8c510e743d8ddd6c47a903ced933f',
+            'format': 'iframe',
+            'height': 60,
+            'width': 468,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/b2c8c510e743d8ddd6c47a903ced933f/invoke.js"></script>
+    <!-- Adsterra Popup Ad Script -->
+    <script type='text/javascript' src='//pl26476047.profitableratecpm.com/33/dd/9d/33dd9d7e6bb869203f2515859fdf523f.js'></script>
+    <!-- Adsterra Social Bar Ad Script -->
+    <script type='text/javascript' src='//pl26476084.profitableratecpm.com/cc/e4/5e/cce45e29eab71e792f2e878196801f45.js'></script>
+    <!-- Adsterra Native Banner Script -->
+    <script async="async" data-cfasync="false" src="//pl26476059.profitableratecpm.com/970f3b77f8751500e9b5e63de9ccb315/invoke.js"></script>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -195,6 +213,7 @@
             background-color: rgba(248, 113, 113, 0.1);
             border-radius: 0.5rem;
             max-width: 600px;
+            font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
@@ -266,7 +285,7 @@
     
     <div class="container">
         <div id="adBlockMessage" class="ad-block-message">
-            Please disable your ad blocker to support this site and view all content.
+            Ads help support this site. If you see this message, ads may not be loading due to browser settings or network issues.
         </div>
         <div id="videoList">
             <div class="loading">Loading your video collection...</div>
@@ -291,36 +310,6 @@
             document.body.appendChild(script);
             return script;
         }
-
-        // Load ad scripts
-        loadScript("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5622393858349174", true, "Failed to load Google Ads script");
-        loadScript("//pl26476059.profitableratecpm.com/970f3b77f8751500e9b5e63de9ccb315/invoke.js", true, "Failed to load Adsterra banner script");
-        loadScript("//pl26476084.profitableratecpm.com/cc/e4/5e/cce45e29eab71e792f2e878196801f45.js", true, "Failed to load Adsterra social bar script");
-
-        // Load iframe banner script
-        const iframeScript = document.createElement("script");
-        iframeScript.textContent = `
-            atOptions = {
-                'key': 'b2c8c510e743d8ddd6c47a903ced933f',
-                'format': 'iframe',
-                'height': 60,
-                'width': 468,
-                'params': {}
-            };
-        `;
-        document.getElementById("iframeBanner").appendChild(iframeScript);
-        loadScript("//www.highperformanceformat.com/b2c8c510e743d8ddd6c47a903ced933f/invoke.js", true, "Failed to load iframe banner script");
-
-        // Detect ad blocker
-        const adTest = document.createElement("div");
-        adTest.className = "ad-container";
-        document.body.appendChild(adTest);
-        setTimeout(() => {
-            if (adTest.offsetHeight === 0) {
-                document.getElementById("adBlockMessage").style.display = "block";
-            }
-            document.body.removeChild(adTest);
-        }, 1000);
 
         // Firebase initialization
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -444,12 +433,10 @@
                 return;
             }
 
+            // Sort videos by timestamp (newest first)
             filteredVideos.sort((a, b) => {
                 const timeA = Number(a.timestamp) || 0;
                 const timeB = Number(b.timestamp) || 0;
-                if (timeA === timeB) {
-                    return a.title.localeCompare(b.title);
-                }
                 return timeB - timeA; // Newer videos first
             });
 
